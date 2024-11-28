@@ -1,0 +1,242 @@
+@keyframes scanning {
+  0% {
+    filter: brightness(1);
+    opacity: 0;
+  }
+  20% {
+    filter: brightness(1.5);
+    opacity: 1;
+  }
+  40% {
+    filter: brightness(2);
+    opacity: 0;
+  }
+  60% {
+    filter: brightness(1.5);
+    opacity: 1;
+  }
+  80% {
+    filter: brightness(1);
+    opacity: 0;
+  }
+  100% {
+    filter: brightness(1.5);
+    opacity: 1;
+  }
+}
+
+.thaiIdDetector {
+  .innerWrap {
+    height: 384px;
+    position: relative;
+    z-index: 1;
+    .borderFrame {
+      height: 384px;
+      position: absolute;
+      aspect-ratio: 3 / 2;
+      transform: translate(-50%, -50%);
+      left: 50%;
+      top: 50%;
+      width: 100%;
+      background-color: transparent;
+      border: 100px solid rgba(0, 0, 0, 0.2);
+      border-width: 90px 153px;
+
+      &:before {
+        z-index: 1000;
+        display: block;
+        content: "";
+        width: 51px;
+        height: 51px;
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        border-radius: 7px 0 0 0;
+        border-top: 3px solid #73c23a;
+        border-left: 3px solid #73c23a;
+      }
+
+      &:after {
+        z-index: 1000;
+        display: block;
+        content: "";
+        width: 51px;
+        height: 51px;
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        border-radius: 0 7px 0 0;
+        border-top: 3px solid #73c23a;
+        border-right: 3px solid #73c23a;
+      }
+
+      &.isScanning {
+        &:after,
+        &:before,
+        *:after,
+        *:before {
+          animation: scanning 1s ease-in-out infinite;
+        }
+      }
+
+      .borderCardIdContainerWrap {
+        &:after {
+          z-index: 1000;
+          display: block;
+          content: "";
+          width: 51px;
+          height: 51px;
+          position: absolute;
+          bottom: -2px;
+          right: -2px;
+          border-radius: 0 0 7px 0;
+          border-bottom: 3px solid #73c23a;
+          border-right: 3px solid #73c23a;
+        }
+
+        &:before {
+          z-index: 1000;
+          display: block;
+          content: "";
+          width: 51px;
+          height: 51px;
+          position: absolute;
+          bottom: -2px;
+          left: -2px;
+          border-radius: 0 0 0 7px;
+          border-bottom: 3px solid #73c23a;
+          border-left: 3px solid #73c23a;
+        }
+      }
+    }
+  }
+
+  .containerCamera {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+  }
+
+  .borderCardIdContainer {
+    overflow: hidden;
+    border-radius: 10px;
+    z-index: 100;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+  }
+
+  .borderCardId {
+    overflow: hidden;
+    border: 2px solid #ffffff;
+    border-radius: 2px;
+    z-index: 100;
+    position: absolute;
+    width: 20%;
+    height: auto;
+    bottom: 21px;
+    right: 14px;
+    padding-top: 24px;
+  }
+
+  .borderInCardId {
+    position: relative;
+    aspect-ratio: 1 / 1;
+  }
+
+  .borderCardIdInContainer {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+
+  .borderCardIdAvatarContainer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .borderHeadCardId {
+    border: 1px solid #ffffff;
+    border-radius: 50%;
+    z-index: 100;
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    aspect-ratio: 1 / 1;
+    top: -10%;
+    transform: translateX(-50%);
+    left: 50%;
+  }
+
+  .borderBodyCardId {
+    border: 1px solid #ffffff;
+    border-radius: 50%;
+    z-index: 100;
+    position: absolute;
+    width: 105%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    bottom: -50%;
+    transform: translateX(-50%);
+    left: 50%;
+  }
+
+  .video {
+    width: 100%;
+    height: 100%;
+  }
+
+  .canvasContainer {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    aspect-ratio: 3 / 2;
+    border: 2px solid #333;
+    background-color: #f0f0f0;
+  }
+
+  .canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .status {
+    margin-top: 8px;
+  }
+
+  .status.loading {
+    color: orange;
+  }
+
+  .status.ready {
+    color: green;
+  }
+
+  .error {
+    color: red;
+    margin-top: 8px;
+  }
+
+  .matchInfo {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .matchInfo.detected {
+    color: green;
+  }
+
+  .matchInfo.notDetected {
+    color: red;
+  }
+}

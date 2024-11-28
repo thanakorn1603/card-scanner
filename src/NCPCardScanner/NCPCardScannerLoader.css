@@ -1,0 +1,7 @@
+.ncpCardScannerLoaderSpinnerContainer {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  height: 384px;
+  background-color: #000;
+}
