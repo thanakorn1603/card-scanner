@@ -182,7 +182,7 @@ const NCPCardScanner: React.FC = () => {
         normalizedCorners,
         0,
         255,
-        window.cv.NORM_MINMAX,
+        window.cv.NORM_MINMAX
       );
       window.cv.convertScaleAbs(normalizedCorners, normalizedCorners);
 
@@ -198,7 +198,7 @@ const NCPCardScanner: React.FC = () => {
         maxCorners,
         qualityLevel,
         minDistance,
-        dilated, // Use dilated edges as mask
+        dilated // Use dilated edges as mask
       );
 
       // Cleanup
@@ -248,7 +248,7 @@ const NCPCardScanner: React.FC = () => {
             area.x,
             area.y,
             area.width,
-            area.height,
+            area.height
           );
 
           let src: any = null;
@@ -265,8 +265,8 @@ const NCPCardScanner: React.FC = () => {
               prev.map((a) =>
                 a.id === area.id
                   ? { ...a, isCornerDetected, cornerCount: count }
-                  : a,
-              ),
+                  : a
+              )
             );
 
             // Draw detected corners
@@ -297,7 +297,7 @@ const NCPCardScanner: React.FC = () => {
                 area.x - 2,
                 area.y - 2,
                 area.width + 4,
-                area.height + 4,
+                area.height + 4
               );
               context.setLineDash([]);
             }
@@ -365,13 +365,9 @@ const NCPCardScanner: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 640, mx: "auto", p: 2 }}>
+    <Box sx={{ width: "100%", maxWidth: 400, mx: "auto", p: 2 }}>
       {/* Header */}
-      <Grid
-        container
-        spacing={2}
-        alignItems="center"
-        justifyContent="center">
+      <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item>
           <Typography
             variant="h5"
@@ -381,7 +377,8 @@ const NCPCardScanner: React.FC = () => {
               textAlign: "center",
               fontWeight: 500,
               fontSize: "24px",
-            }}>
+            }}
+          >
             แสกนบัตร
           </Typography>
         </Grid>
@@ -391,7 +388,8 @@ const NCPCardScanner: React.FC = () => {
       <Box sx={{ mt: 2, mb: 3, textAlign: "center" }}>
         <Typography
           variant="body1"
-          sx={{ color: "text.secondary", fontSize: "24px", paddingBottom: 10 }}>
+          sx={{ color: "text.secondary", fontSize: "24px", paddingBottom: 10 }}
+        >
           รูปภาพบัตรของคุณจะไม่ถูกบันทึก
         </Typography>
         <Typography
@@ -400,7 +398,8 @@ const NCPCardScanner: React.FC = () => {
             color: "text.secondary",
             textAlign: "center",
             fontSize: "24px",
-          }}>
+          }}
+        >
           วางบัตรของคุณให้ตรงกับกรอบในรูป แล้วค้างไว้ระยะหนึ่ง
         </Typography>
       </Box>
@@ -419,7 +418,8 @@ const NCPCardScanner: React.FC = () => {
           mb: 3,
           position: "relative",
           overflow: "hidden",
-        }}>
+        }}
+      >
         <div className="innerWrap">
           {!isStreaming && !resultImage && isAllowCamera ? (
             <NCPCardScannerLoader />
@@ -503,19 +503,15 @@ const NCPCardScanner: React.FC = () => {
             fontSize: "24px",
             fontWeight: 400,
             paddingBottom: "10px",
-          }}>
+          }}
+        >
           กดที่รูปหากต้องการถ่ายรูปใหม่
         </Typography>
       </Box>
 
       {/* Action Buttons */}
-      <Grid
-        container
-        spacing={2}>
-        <Grid
-          item
-          xs={12}
-          sm={6}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6}>
           <Button
             fullWidth
             variant="outlined"
@@ -527,14 +523,12 @@ const NCPCardScanner: React.FC = () => {
               "&:hover": {
                 borderColor: "success.dark",
               },
-            }}>
+            }}
+          >
             กรอกข้อมูลด้วยตัวเอง
           </Button>
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}>
+        <Grid item xs={12} sm={6}>
           <Button
             fullWidth
             variant="contained"
@@ -546,7 +540,8 @@ const NCPCardScanner: React.FC = () => {
               "&:hover": {
                 bgcolor: "#73C23A",
               },
-            }}>
+            }}
+          >
             ยืนยัน
           </Button>
         </Grid>
