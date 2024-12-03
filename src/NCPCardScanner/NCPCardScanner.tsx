@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./NCPCardScanner.css";
 import NCPCardScannerAllowCamera from "./NCPCardScannerAllowCamera";
 import NCPCardScannerLoader from "./NCPCardScannerLoader";
+import { Height } from "@mui/icons-material";
 
 interface Area {
   id: number;
@@ -35,8 +36,8 @@ const NCPCardScanner: React.FC = () => {
   const [areas, setAreas] = useState<Area[]>([
     {
       id: 1,
-      x: 130,
-      y: 70,
+      x: 40,
+      y: window.screen.height / 2 - 180,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -44,8 +45,8 @@ const NCPCardScanner: React.FC = () => {
     },
     {
       id: 2,
-      x: 440,
-      y: 70,
+      x: window.screen.width - 110,
+      y: window.screen.height / 2 - 180,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -53,8 +54,8 @@ const NCPCardScanner: React.FC = () => {
     },
     {
       id: 3,
-      x: 130,
-      y: 244,
+      x: 40,
+      y: window.screen.height / 2 - 20,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -62,8 +63,8 @@ const NCPCardScanner: React.FC = () => {
     },
     {
       id: 4,
-      x: 440,
-      y: 244,
+      x: window.screen.width - 110,
+      y: window.screen.height / 2 - 20,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -81,6 +82,15 @@ const NCPCardScanner: React.FC = () => {
   let isProcessing: boolean = false;
 
   useEffect(() => {
+    console.log({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+      availWidth: window.screen.availWidth,
+      availHeight: window.screen.availHeight,
+      pixelRatio: window.devicePixelRatio,
+    });
     if (!isLoadCV && !window.cv) {
       isLoadCV = true;
 
@@ -127,16 +137,42 @@ const NCPCardScanner: React.FC = () => {
     }
   };
 
+  async function getCameraResolution() {
+    // Request access to the user's camera
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true, // Request video only
+    });
+
+    // Get the video tracks from the media stream
+    const videoTracks = stream.getVideoTracks();
+
+    // Retrieve settings from the first video track
+    const settings = videoTracks[0].getSettings();
+
+    // Extract width and height from settings
+    const idealWidth = settings.width || 1280; // Default to 1280 if not available
+    const idealHeight = settings.height || 720; // Default to 720 if not available
+
+    console.log(`Ideal width: ${idealWidth}, Ideal height: ${idealHeight}`);
+
+    // Stop the video track to release camera
+    videoTracks[0].stop();
+
+    return { width: { ideal: idealWidth }, height: { ideal: idealHeight } };
+  }
+
   const initializeCamera = async (): Promise<void> => {
+    const getCameraResolutionRes = await getCameraResolution();
+    console.log("--ratio--", getCameraResolutionRes);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 2213 },
+          height: { ideal: 1290 },
           facingMode: "environment", // Use back camera if available
         },
       });
-      if (videoRef.current) {
+      if (videoRef.current && window.cv) {
         videoRef.current.srcObject = stream;
         setIsStreaming(true);
       }
@@ -226,6 +262,9 @@ const NCPCardScanner: React.FC = () => {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
+
+      // console.log({ width: canvas.width, height: canvas.height });
+      // console.log({ width: video.width, height: video.height });
 
       if (!context) return;
 
@@ -317,6 +356,7 @@ const NCPCardScanner: React.FC = () => {
         }
       });
 
+      // console.log({ detectCardCornerAll });
       if (
         detectCardCornerAll.length > 0 &&
         detectCardCornerAll.every((value) => value >= 5)
@@ -365,7 +405,90 @@ const NCPCardScanner: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 400, mx: "auto", p: 2 }}>
+    <Box sx={{ width: "100%", maxWidth: 640, mx: "auto" }}>
+      {resultImage ? (
+        <div>
+          <img
+            src={resultImage}
+            style={{ height: "384px" }}
+            onClick={() => handleClearImage()}
+          />
+        </div>
+      ) : (
+        <>
+          <div style={{ position: "relative" }}>
+            <canvas
+              ref={canvasRef}
+              width={window.screen.width}
+              height={window.screen.height}
+              style={{ position: "absolute", top: 0, right: 0 }}
+            />
+            <div
+              className="point1"
+              style={{
+                border: "solid #73c23a 2px",
+                width: "70px",
+                height: "70px",
+                position: "absolute",
+                zIndex: 9999,
+                top: window.screen.height / 2 - 180,
+                left: 40,
+              }}
+            ></div>
+            <div
+              className="point2"
+              style={{
+                border: "solid #73c23a 2px",
+                width: "70px",
+                height: "70px",
+                position: "absolute",
+                zIndex: 9999,
+                top: window.screen.height / 2 - 180,
+                left: window.screen.width - 110,
+              }}
+            ></div>
+            <div
+              className="point3"
+              style={{
+                border: "solid #73c23a 2px",
+                width: "70px",
+                height: "70px",
+                position: "absolute",
+                zIndex: 9999,
+                top: window.screen.height / 2 - 20,
+                left: 40,
+              }}
+            ></div>
+            <div
+              className="point4"
+              style={{
+                border: "solid #73c23a 2px",
+                width: "70px",
+                height: "70px",
+                position: "absolute",
+                zIndex: 9999,
+                top: window.screen.height / 2 - 20,
+                left: window.screen.width - 110,
+              }}
+            ></div>
+          </div>
+        </>
+      )}
+
+      <video
+        ref={videoRef}
+        className="hidden"
+        autoPlay
+        playsInline
+        onPlay={() => setIsStreaming(true)}
+        style={{
+          display: !resultImage ? "block" : "none",
+          // display: "none",
+          height: "-webkit-fill-available",
+          width: "-webkit-fill-available",
+        }}
+      />
+
       {/* Header */}
       <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item>
@@ -412,7 +535,8 @@ const NCPCardScanner: React.FC = () => {
           height: 384,
           bgcolor: "grey.100",
           borderRadius: 2,
-          display: "flex",
+          // display: "flex",
+          display: "none",
           alignItems: "center",
           justifyContent: "center",
           mb: 3,
@@ -447,7 +571,7 @@ const NCPCardScanner: React.FC = () => {
             )
           )}
 
-          <video
+          {/* <video
             ref={videoRef}
             className="hidden"
             autoPlay
@@ -455,10 +579,14 @@ const NCPCardScanner: React.FC = () => {
             onPlay={() => setIsStreaming(true)}
             width="640"
             height="384"
-            style={{ display: "none" }}
-          />
+            style={{
+              display: "none",
+              height: "-webkit-fill-available",
+              width: "-webkit-fill-available",
+            }}
+          /> */}
 
-          {resultImage ? (
+          {/* {resultImage ? (
             <div>
               <img
                 src={resultImage}
@@ -469,27 +597,15 @@ const NCPCardScanner: React.FC = () => {
           ) : (
             <canvas
               ref={canvasRef}
-              width="640"
-              height="384"
-              style={{ height: "384px" }}
+              width="430"
+              height="932"
+              style={{
+                display: "none",
+              }}
               className="w-full border border-gray-200 rounded"
             />
-          )}
+          )} */}
         </div>
-        {/* {isScanning && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 2,
-              bgcolor: "primary.main",
-              zIndex: 99,
-              animation: "scan 1s linear infinite",
-            }}
-          />
-        )} */}
       </Box>
 
       {/* Instructions */}
