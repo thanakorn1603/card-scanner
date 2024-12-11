@@ -1,11 +1,23 @@
-import { Box, Button, Grid, Typography } from "@mui/material";
-// import { Theme } from "@mui/material/styles";
 import React, { useEffect, useRef, useState } from "react";
 
 import "./NCPCardScanner.css";
 import NCPCardScannerAllowCamera from "./NCPCardScannerAllowCamera";
 import NCPCardScannerLoader from "./NCPCardScannerLoader";
-import { Height } from "@mui/icons-material";
+import {
+  Box,
+  Typography,
+  Button,
+  Container,
+  Paper,
+  styled,
+  ThemeProvider,
+  createTheme,
+  useMediaQuery,
+  CssBaseline,
+  Grid,
+} from "@mui/material";
+import SecurityIcon from "@mui/icons-material/Security";
+import CornerFrame from "./CorneredFrame";
 
 interface Area {
   id: number;
@@ -23,12 +35,72 @@ declare global {
   }
 }
 
+// Custom theme with mobile-first considerations
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#4CAF50",
+    },
+    secondary: {
+      main: "#FFFFFF",
+    },
+    background: {
+      default: "#FFFFFF",
+    },
+  },
+  typography: {
+    fontFamily: ["Kanit", "Roboto", "Arial", "sans-serif"].join(","),
+    h4: {
+      fontSize: "1.75rem",
+      [createTheme().breakpoints.down("sm")]: {
+        fontSize: "1.5rem",
+      },
+    },
+    body1: {
+      fontSize: "1rem",
+      [createTheme().breakpoints.down("sm")]: {
+        fontSize: "0.95rem",
+      },
+    },
+    body2: {
+      fontSize: "0.875rem",
+      [createTheme().breakpoints.down("sm")]: {
+        fontSize: "0.825rem",
+      },
+    },
+  },
+  components: {
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          "@media (max-width: 600px)": {
+            // paddingLeft: 16,
+            // paddingRight: 16,
+          },
+        },
+      },
+    },
+  },
+});
+
+// Custom styled components with mobile-first approach
+const StyledButton = styled(Button)(({ theme }) => ({
+  borderRadius: 25,
+  padding: "14px",
+  textTransform: "none",
+  fontSize: "1rem",
+  marginBottom: theme.spacing(1.5),
+  width: "100%",
+  [theme.breakpoints.down("sm")]: {
+    padding: "12px",
+    fontSize: "0.95rem",
+  },
+}));
+
 let isLoadCV = false;
 
 const NCPCardScanner: React.FC = () => {
-  // const isMobile = useMediaQuery((theme: Theme) =>
-  //   theme.breakpoints.down("sm"),
-  // );
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -36,8 +108,8 @@ const NCPCardScanner: React.FC = () => {
   const [areas, setAreas] = useState<Area[]>([
     {
       id: 1,
-      x: 40,
-      y: window.screen.height / 2 - 180,
+      x: 30,
+      y: window.screen.height / 2 - (window.screen.width*0.8*2)/3,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -45,8 +117,8 @@ const NCPCardScanner: React.FC = () => {
     },
     {
       id: 2,
-      x: window.screen.width - 110,
-      y: window.screen.height / 2 - 180,
+      x: window.screen.width - 100,
+      y: window.screen.height / 2 - (window.screen.width*0.8*2)/3,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -54,8 +126,8 @@ const NCPCardScanner: React.FC = () => {
     },
     {
       id: 3,
-      x: 40,
-      y: window.screen.height / 2 - 20,
+      x: 30,
+      y: window.screen.height / 2 - 50,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -63,8 +135,8 @@ const NCPCardScanner: React.FC = () => {
     },
     {
       id: 4,
-      x: window.screen.width - 110,
-      y: window.screen.height / 2 - 20,
+      x: window.screen.width - 100,
+      y: window.screen.height / 2 - 50,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -82,6 +154,10 @@ const NCPCardScanner: React.FC = () => {
   let isProcessing: boolean = false;
 
   useEffect(() => {
+    if(window.screen.height) {console.log("window.screen.height >>> ", window.screen.height)}
+  }, [])
+
+  useEffect(() => {
     console.log({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -93,7 +169,6 @@ const NCPCardScanner: React.FC = () => {
     });
     if (!isLoadCV && !window.cv) {
       isLoadCV = true;
-
       if (document.getElementById("opencv-script")) {
         initializeCamera();
         return;
@@ -263,9 +338,6 @@ const NCPCardScanner: React.FC = () => {
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
 
-      // console.log({ width: canvas.width, height: canvas.height });
-      // console.log({ width: video.width, height: video.height });
-
       if (!context) return;
 
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -405,281 +477,209 @@ const NCPCardScanner: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 640, mx: "auto" }}>
-      {resultImage ? (
-        <div>
-          <img
-            src={resultImage}
-            style={{ height: "384px" }}
-            onClick={() => handleClearImage()}
-          />
-        </div>
-      ) : (
-        <>
-          <div style={{ position: "relative" }}>
-            <canvas
-              ref={canvasRef}
-              width={window.screen.width}
-              height={window.screen.height}
-              style={{ position: "absolute", top: 0, right: 0 }}
-            />
-            <div
-              className="point1"
-              style={{
-                border: "solid #73c23a 2px",
-                width: "70px",
-                height: "70px",
-                position: "absolute",
-                zIndex: 9999,
-                top: window.screen.height / 2 - 180,
-                left: 40,
-              }}
-            ></div>
-            <div
-              className="point2"
-              style={{
-                border: "solid #73c23a 2px",
-                width: "70px",
-                height: "70px",
-                position: "absolute",
-                zIndex: 9999,
-                top: window.screen.height / 2 - 180,
-                left: window.screen.width - 110,
-              }}
-            ></div>
-            <div
-              className="point3"
-              style={{
-                border: "solid #73c23a 2px",
-                width: "70px",
-                height: "70px",
-                position: "absolute",
-                zIndex: 9999,
-                top: window.screen.height / 2 - 20,
-                left: 40,
-              }}
-            ></div>
-            <div
-              className="point4"
-              style={{
-                border: "solid #73c23a 2px",
-                width: "70px",
-                height: "70px",
-                position: "absolute",
-                zIndex: 9999,
-                top: window.screen.height / 2 - 20,
-                left: window.screen.width - 110,
-              }}
-            ></div>
-          </div>
-        </>
-      )}
-
-      <video
-        ref={videoRef}
-        className="hidden"
-        autoPlay
-        playsInline
-        onPlay={() => setIsStreaming(true)}
-        style={{
-          display: !resultImage ? "block" : "none",
-          // display: "none",
-          height: "-webkit-fill-available",
-          width: "-webkit-fill-available",
-        }}
-      />
-
-      {/* Header */}
-      <Grid container spacing={2} alignItems="center" justifyContent="center">
-        <Grid item>
-          <Typography
-            variant="h5"
-            component="h1"
-            sx={{
-              color: "text.primary",
-              textAlign: "center",
-              fontWeight: 500,
-              fontSize: "24px",
-            }}
-          >
-            แสกนบัตร
-          </Typography>
-        </Grid>
-      </Grid>
-
-      {/* Subheader with icon */}
-      <Box sx={{ mt: 2, mb: 3, textAlign: "center" }}>
-        <Typography
-          variant="body1"
-          sx={{ color: "text.secondary", fontSize: "24px", paddingBottom: 10 }}
-        >
-          รูปภาพบัตรของคุณจะไม่ถูกบันทึก
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "text.secondary",
-            textAlign: "center",
-            fontSize: "24px",
-          }}
-        >
-          วางบัตรของคุณให้ตรงกับกรอบในรูป แล้วค้างไว้ระยะหนึ่ง
-        </Typography>
-      </Box>
-
-      {/* Scanner Area */}
-      <Box
-        className="thaiIdDetector"
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {/* Meta viewport tag is required in your HTML file:
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> */}
+      <Container
         sx={{
-          width: "100%",
-          height: 384,
-          bgcolor: "grey.100",
-          borderRadius: 2,
-          // display: "flex",
-          display: "none",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 3,
-          position: "relative",
-          overflow: "hidden",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          backgroundColor: "rgba(255,255,255,1)",
+          paddingLeft: 0,
+          paddingRight: 0,
         }}
       >
-        <div className="innerWrap">
-          {!isStreaming && !resultImage && isAllowCamera ? (
-            <NCPCardScannerLoader />
-          ) : !isAllowCamera ? (
-            <NCPCardScannerAllowCamera />
-          ) : (
-            (isStreaming || !resultImage) && (
-              <div className={`borderFrame ${isScanning && "isScanning"}`}>
-                <div className="borderCardIdContainerWrap" />
-                <div className="containerCamera">
-                  <div className="borderCardIdContainer">
-                    <div className="borderCardIdInContainer">
-                      <div className="borderCardId">
-                        <div className="borderInCardId">
-                          <div className="borderCardIdAvatarContainer">
-                            <div className="borderHeadCardId" />
-                            <div className="borderBodyCardId" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* <video
-            ref={videoRef}
-            className="hidden"
-            autoPlay
-            playsInline
-            onPlay={() => setIsStreaming(true)}
-            width="640"
-            height="384"
-            style={{
-              display: "none",
-              height: "-webkit-fill-available",
-              width: "-webkit-fill-available",
-            }}
-          /> */}
-
-          {/* {resultImage ? (
-            <div>
+        {/* Video Area */}
+        <Box
+          sx={{
+            position: "absolute",
+            width: "-webkit-fill-available",
+            height: "-webkit-fill-available",
+            zIndex: 1,
+          }}
+        >
+          {resultImage ? (
+            <div
+              style={{ position: "absolute", top: 0, left: 0, width: "100%" }}
+            >
               <img
                 src={resultImage}
-                style={{ height: "384px" }}
+                style={{ height: "auto", width: "80%" }}
                 onClick={() => handleClearImage()}
               />
             </div>
           ) : (
-            <canvas
-              ref={canvasRef}
-              width="430"
-              height="932"
-              style={{
-                display: "none",
-              }}
-              className="w-full border border-gray-200 rounded"
-            />
-          )} */}
-        </div>
-      </Box>
+            <>
+              <div style={{ position: "relative" }}>
+                <canvas
+                  ref={canvasRef}
+                  width={window.innerWidth}
+                  height={window.innerHeight}
+                  style={{ position: "absolute", top: 0, right: 0 }}
+                />
+              </div>
+            </>
+          )}
 
-      {/* Instructions */}
-      <Box sx={{ marginBottom: "10px" }}>
-        <Typography
-          variant="body2"
+          <video
+            ref={videoRef}
+            className="none"
+            autoPlay
+            playsInline
+            onPlay={() => setIsStreaming(true)}
+            style={{
+              display: !resultImage ? "block" : "none",
+              // display: "none",
+              height: "-webkit-fill-available",
+              width: "auto",
+            }}
+          />
+          {/* <img src="https://f.ptcdn.info/859/075/000/r4puko1k6jTqNzM7Qcx4-o.jpg" width={"100%"} height={"100%"}/> */}
+        </Box>
+
+        <CornerFrame />
+        {/* <Box
           sx={{
-            color: "text.secondary",
-            textAlign: "center",
-            mb: 3,
-            fontSize: "24px",
-            fontWeight: 400,
-            paddingBottom: "10px",
+            position: "absolute",
+            aspectRatio: "3 / 2",
+            transform: "translate(-50%, -50%)",
+            left: "50%",
+            top: "50%",
+            backgroundColor: "transparent",
+            zIndex: 3,
+            width: "80%",
+            outline: "300px solid  rgba(68, 68, 68,0.5)"
+          }}
+        ></Box> */}
+
+        {/* Overay Area */}
+        <Box
+          maxWidth="sm"
+          sx={{
+            minHeight: "100vh",
+            width: "-webkit-fill-available",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            px: isMobile ? 2 : 3,
+            zIndex: 2,
           }}
         >
-          กดที่รูปหากต้องการถ่ายรูปใหม่
-        </Typography>
-      </Box>
-
-      {/* Action Buttons */}
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => {}}
+          <Box
             sx={{
-              borderColor: "#73C23A",
-              fontSize: "24px",
-              color: "#73C23A",
-              "&:hover": {
-                borderColor: "success.dark",
-              },
+              py: isMobile ? 3 : 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              height: "100vh",
+              justifyContent: "space-between",
+              paddingBottom: isMobile ? "100px" : 0,
             }}
           >
-            กรอกข้อมูลด้วยตัวเอง
-          </Button>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleScan}
-            sx={{
-              color: "white",
-              fontSize: "24px",
-              bgcolor: "#73C23A",
-              "&:hover": {
-                bgcolor: "#73C23A",
-              },
-            }}
-          >
-            ยืนยัน
-          </Button>
-        </Grid>
-      </Grid>
+            {/* Header */}
+            <Box>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  color: "secondary.main",
+                  fontWeight: "bold",
+                  mb: isMobile ? 2 : 3,
+                  textAlign: "center",
+                }}
+              >
+                แสกนบัตร
+              </Typography>
 
-      {/* Animation styles */}
-      <style>
-        {`
-          @keyframes scan {
-            0% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(384px);
-            }
-            100% {
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
-    </Box>
+              {/* Security Message */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: isMobile ? 2 : 3,
+                }}
+              >
+                <SecurityIcon
+                  color="primary"
+                  sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
+                />
+                <Typography variant="body1" color="secondary.main">
+                  รูปภาพบัตรของคุณจะไม่ถูกบันทึก
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Instruction Text */}
+            <Box>
+              <Typography
+                variant="body1"
+                color="secondary.main"
+                textAlign="center"
+                sx={{ mb: isMobile ? 2 : 3, px: 2 }}
+              >
+                วางบัตรของคุณให้ตรงกับกรอบในรูป แล้วค้างไว้ระยะหนึ่ง
+              </Typography>
+
+              {/* Card Frame */}
+              {/* <CardFrame elevation={0}>
+              <Paper
+                elevation={2}
+                sx={{
+                  width: "85%",
+                  aspectRatio: "1.586/1",
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "white",
+                }}
+              >
+                <Box
+                  component="img"
+                  src="/api/placeholder/400/250"
+                  alt="ID Card Placeholder"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </Paper>
+            </CardFrame> */}
+
+              {/* Scan Instructions */}
+              <Typography
+                variant="body2"
+                color="secondary.main"
+                sx={{ mb: isMobile ? 3 : 4, textAlign: "center" }}
+              >
+                กดที่รูปหากต้องการสแกนใหม่
+              </Typography>
+            </Box>
+
+            {/* Button Container - Fixed at bottom for mobile */}
+            <Box
+              sx={{
+                width: "100%",
+                px: isMobile ? 0 : 2,
+              }}
+            >
+              <StyledButton variant="outlined" color="primary">
+                กรอกข้อมูลด้วยตัวเอง
+              </StyledButton>
+
+              <StyledButton variant="contained" color="primary" sx={{ mb: 0 }}>
+                ยืนยัน
+              </StyledButton>
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 };
 
