@@ -168,7 +168,11 @@ const CardScanner: React.FC = () => {
     });
 
     if (!isLoadCV && !window.cv) {
+<<<<<<< HEAD:src/NCPCardScanner/CardScanner/CardScanner.tsx
 
+=======
+
+>>>>>>> aba867a99beb1d1ca975d22e7b59db996ecbe63c:src/NCPCardScanner/NCPCardScanner.tsx
       isLoadCV = true;
       if (document.getElementById("opencv-script")) {
         initializeCamera();
