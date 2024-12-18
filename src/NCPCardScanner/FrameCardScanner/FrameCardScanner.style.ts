@@ -3,9 +3,33 @@ import { Box, keyframes } from "@mui/material";
 import { CornerProps } from "./FrameCardScanner.interface";
 
 const blinkAnimation = keyframes`
-  0% { opacity: 1; }
+  /* 0% { opacity: 1; }
   50% { opacity: 0; }
-  100% { opacity: 1; }
+  100% { opacity: 1; } */
+  0% {
+    filter: brightness(1);
+    opacity: 0;
+  }
+  20% {
+    filter: brightness(1.5);
+    opacity: 1;
+  }
+  40% {
+    filter: brightness(2);
+    opacity: 0;
+  }
+  60% {
+    filter: brightness(1.5);
+    opacity: 1;
+  }
+  80% {
+    filter: brightness(1);
+    opacity: 0;
+  }
+  100% {
+    filter: brightness(1.5);
+    opacity: 1;
+  }
 `;
 
 export const FrameCardScannerStyled = styled(Box)<any>(({ theme }) => ({

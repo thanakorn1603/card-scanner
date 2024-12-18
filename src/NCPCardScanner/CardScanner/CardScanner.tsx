@@ -1,5 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-
 import SecurityIcon from "@mui/icons-material/Security";
 import {
   Box,
@@ -12,10 +10,10 @@ import {
   Typography,
   useMediaQuery
 } from "@mui/material";
-import FrameCardScanner from "./FrameCardScanner/FrameCardScanner";
-import "./NCPCardScanner.css";
-import NCPCardScannerAllowCamera from "./NCPCardScannerAllowCamera";
-import NCPCardScannerLoader from "./NCPCardScannerLoader";
+import React, { useEffect, useRef, useState } from "react";
+import CardScannerAllowCamera from "../CardScannerAllowCamera/CardScannerAllowCamera";
+import CardScannerLoader from "../CardScannerLoader/CardScannerLoader";
+import FrameCardScanner from "../FrameCardScanner/FrameCardScanner";
 
 interface Area {
   id: number;
@@ -99,7 +97,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 let isLoadCV = false;
 
-const NCPCardScanner: React.FC = () => {
+const CardScanner: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -170,7 +168,7 @@ const NCPCardScanner: React.FC = () => {
     });
 
     if (!isLoadCV && !window.cv) {
-      getSensorCoordinates();
+
       isLoadCV = true;
       if (document.getElementById("opencv-script")) {
         initializeCamera();
@@ -215,33 +213,7 @@ const NCPCardScanner: React.FC = () => {
     }
   };
 
-  async function getCameraResolution() {
-    // Request access to the user's camera
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true, // Request video only
-    });
-
-    // Get the video tracks from the media stream
-    const videoTracks = stream.getVideoTracks();
-
-    // Retrieve settings from the first video track
-    const settings = videoTracks[0].getSettings();
-
-    // Extract width and height from settings
-    const idealWidth = settings.width || 1280; // Default to 1280 if not available
-    const idealHeight = settings.height || 720; // Default to 720 if not available
-
-    console.log(`Ideal width: ${idealWidth}, Ideal height: ${idealHeight}`);
-
-    // Stop the video track to release camera
-    videoTracks[0].stop();
-
-    return { width: { ideal: idealWidth }, height: { ideal: idealHeight } };
-  }
-
   const initializeCamera = async (): Promise<void> => {
-    const getCameraResolutionRes = await getCameraResolution();
-    console.log("--ratio--", getCameraResolutionRes);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -251,8 +223,9 @@ const NCPCardScanner: React.FC = () => {
         },
       });
       console.log({ videoRef: videoRef.current, cv: window.cv })
+      setIsStreaming(true);
+      getSensorCoordinates();
       if (videoRef.current && window.cv) {
-        setIsStreaming(true);
         videoRef.current.srcObject = stream;
       }
     } catch (error) {
@@ -581,10 +554,10 @@ const NCPCardScanner: React.FC = () => {
           paddingRight: 0,
         }}
       >
-        {false ? (
-          <NCPCardScannerLoader />
+        {!isStreaming && !resultImage && isAllowCamera ? (
+          <CardScannerLoader />
         ) : !isAllowCamera ? (
-          <NCPCardScannerAllowCamera />
+          <CardScannerAllowCamera />
         ) : (
           <>
             {/* Video Area */}
@@ -772,4 +745,4 @@ const NCPCardScanner: React.FC = () => {
   );
 };
 
-export default NCPCardScanner;
+export default CardScanner;
