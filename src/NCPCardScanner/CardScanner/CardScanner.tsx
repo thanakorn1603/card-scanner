@@ -1,11 +1,9 @@
 import SecurityIcon from "@mui/icons-material/Security";
 import {
   Box,
-  Button,
   Container,
   createTheme,
   CssBaseline,
-  styled,
   ThemeProvider,
   Typography,
   useMediaQuery
@@ -14,22 +12,8 @@ import React, { useEffect, useRef, useState } from "react";
 import CardScannerAllowCamera from "../CardScannerAllowCamera/CardScannerAllowCamera";
 import CardScannerLoader from "../CardScannerLoader/CardScannerLoader";
 import FrameCardScanner from "../FrameCardScanner/FrameCardScanner";
-
-interface Area {
-  id: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  isCornerDetected: boolean;
-  cornerCount: number;
-}
-
-declare global {
-  interface Window {
-    cv: any;
-  }
-}
+import { Area } from "./CardScanner.interface";
+import { ButtonStyled } from "./CardScanner.styles";
 
 // Custom theme with mobile-first considerations
 const theme = createTheme({
@@ -80,20 +64,6 @@ const theme = createTheme({
     },
   },
 });
-
-// Custom styled components with mobile-first approach
-const StyledButton = styled(Button)(({ theme }) => ({
-  borderRadius: 25,
-  padding: "14px",
-  textTransform: "none",
-  fontSize: "1rem",
-  marginBottom: theme.spacing(1.5),
-  width: "100%",
-  [theme.breakpoints.down("sm")]: {
-    padding: "12px",
-    fontSize: "0.95rem",
-  },
-}));
 
 let isLoadCV = false;
 
@@ -583,7 +553,6 @@ const CardScanner: React.FC = () => {
                           (videoRef.current?.videoHeight || 0)) /
                         (videoRef.current?.videoWidth || 0)
                       }
-                    // style={{ position: "absolute", top: 0, right: 0 }}
                     />
                   </div>
                 </>
@@ -597,16 +566,15 @@ const CardScanner: React.FC = () => {
                 onPlay={() => setIsStreaming(true)}
                 style={{
                   display: !resultImage ? "block" : "none",
-                  // display: "none",
-                  // height: "-webkit-fill-available",
-                  width: "-webkit-fill-available",
+                  height: "-webkit-fill-available",
+                  width: "100%",
                 }}
               />
             </Box>
 
             {!resultImage && <FrameCardScanner isBlink={isScanning} />}
 
-            {/* Overay Area */}
+            {/* Overlay Area */}
             <Box
               sx={{
                 minHeight: window.innerHeight,
@@ -725,17 +693,17 @@ const CardScanner: React.FC = () => {
                     px: isMobile ? 0 : 2,
                   }}
                 >
-                  <StyledButton variant="outlined" color="primary">
+                  <ButtonStyled variant="outlined" color="primary">
                     กรอกข้อมูลด้วยตัวเอง
-                  </StyledButton>
+                  </ButtonStyled>
 
-                  <StyledButton
+                  <ButtonStyled
                     variant="contained"
                     color="primary"
                     sx={{ mb: 0 }}
                   >
                     ยืนยัน
-                  </StyledButton>
+                  </ButtonStyled>
                 </Box>
               </Box>
             </Box>
