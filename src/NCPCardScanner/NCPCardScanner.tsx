@@ -1,23 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import SecurityIcon from "@mui/icons-material/Security";
+import {
+  Box,
+  Button,
+  Container,
+  createTheme,
+  CssBaseline,
+  styled,
+  ThemeProvider,
+  Typography,
+  useMediaQuery
+} from "@mui/material";
+import FrameCardScanner from "./FrameCardScanner/FrameCardScanner";
 import "./NCPCardScanner.css";
 import NCPCardScannerAllowCamera from "./NCPCardScannerAllowCamera";
 import NCPCardScannerLoader from "./NCPCardScannerLoader";
-import {
-  Box,
-  Typography,
-  Button,
-  Container,
-  Paper,
-  styled,
-  ThemeProvider,
-  createTheme,
-  useMediaQuery,
-  CssBaseline,
-  Grid,
-} from "@mui/material";
-import SecurityIcon from "@mui/icons-material/Security";
-import CornerFrame from "./CorneredFrame";
 
 interface Area {
   id: number;
@@ -252,7 +250,7 @@ const NCPCardScanner: React.FC = () => {
           facingMode: "environment", // Use back camera if available
         },
       });
-      console.log({videoRef: videoRef.current, cv:window.cv})
+      console.log({ videoRef: videoRef.current, cv: window.cv })
       if (videoRef.current && window.cv) {
         setIsStreaming(true);
         videoRef.current.srcObject = stream;
@@ -611,7 +609,7 @@ const NCPCardScanner: React.FC = () => {
                           (videoRef.current?.videoHeight || 0)) /
                         (videoRef.current?.videoWidth || 0)
                       }
-                      // style={{ position: "absolute", top: 0, right: 0 }}
+                    // style={{ position: "absolute", top: 0, right: 0 }}
                     />
                   </div>
                 </>
@@ -632,7 +630,7 @@ const NCPCardScanner: React.FC = () => {
               />
             </Box>
 
-            {!resultImage && <CornerFrame isBlink={isScanning} />}
+            {!resultImage && <FrameCardScanner isBlink={isScanning} />}
 
             {/* Overay Area */}
             <Box
