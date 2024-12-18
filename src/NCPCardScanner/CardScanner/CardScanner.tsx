@@ -1,5 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-
 import SecurityIcon from "@mui/icons-material/Security";
 import {
   Box,
@@ -12,10 +10,10 @@ import {
   Typography,
   useMediaQuery
 } from "@mui/material";
-import FrameCardScanner from "./FrameCardScanner/FrameCardScanner";
-import "./NCPCardScanner.css";
-import NCPCardScannerAllowCamera from "./NCPCardScannerAllowCamera";
-import NCPCardScannerLoader from "./NCPCardScannerLoader";
+import React, { useEffect, useRef, useState } from "react";
+import CardScannerAllowCamera from "../CardScannerAllowCamera/CardScannerAllowCamera";
+import CardScannerLoader from "../CardScannerLoader/CardScannerLoader";
+import FrameCardScanner from "../FrameCardScanner/FrameCardScanner";
 
 interface Area {
   id: number;
@@ -99,7 +97,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 let isLoadCV = false;
 
-const NCPCardScanner: React.FC = () => {
+const CardScanner: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -170,7 +168,8 @@ const NCPCardScanner: React.FC = () => {
     });
 
     if (!isLoadCV && !window.cv) {
-      
+
+
       isLoadCV = true;
       if (document.getElementById("opencv-script")) {
         initializeCamera();
@@ -557,9 +556,9 @@ const NCPCardScanner: React.FC = () => {
         }}
       >
         {!isStreaming && !resultImage && isAllowCamera ? (
-          <NCPCardScannerLoader />
+          <CardScannerLoader />
         ) : !isAllowCamera ? (
-          <NCPCardScannerAllowCamera />
+          <CardScannerAllowCamera />
         ) : (
           <>
             {/* Video Area */}
@@ -747,4 +746,4 @@ const NCPCardScanner: React.FC = () => {
   );
 };
 
-export default NCPCardScanner;
+export default CardScanner;

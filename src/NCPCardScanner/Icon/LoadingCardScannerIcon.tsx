@@ -1,6 +1,6 @@
 import React from "react";
 
-const LoadingNCPCardScanner = (props: any) => {
+const LoadingCardScannerIcon = (props: any) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -65,4 +65,4 @@ const LoadingNCPCardScanner = (props: any) => {
   )
 };
 
-export default LoadingNCPCardScanner;
+export default LoadingCardScannerIcon;
