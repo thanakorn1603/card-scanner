@@ -1,6 +1,13 @@
-import { styled } from "@mui/material";
+import { styled, keyframes } from "@mui/material";
 
-// Frame Container
+// Add blinking animation keyframes
+const blinkAnimation = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+`;
+
+// Frame Container remains the same
 const FrameContainer = styled('div')({
     position: "absolute",
     aspectRatio: "3 / 2",
@@ -10,14 +17,20 @@ const FrameContainer = styled('div')({
     backgroundColor: "transparent",
     zIndex: 3,
     width: "80%",
-    outline: "300px solid  rgba(68, 68, 68,0.5)"
+    outline: "500px solid  rgba(68, 68, 68,0.5)"
 });
 
-// Corner component
-const Corner = styled('div')({
+// Define interface for Corner props
+interface CornerProps {
+    isBlink?: boolean;
+  }
+
+// Modified Corner component with blink animation
+const Corner = styled('div')<CornerProps>(({ isBlink }) => ({
   position: 'absolute',
   width: '40px',
   height: '40px',
+  animation: isBlink ? `${blinkAnimation} 1s infinite` : 'none',
 
   // Top Left
   '&[data-position="top-left"]': {
@@ -54,16 +67,16 @@ const Corner = styled('div')({
     borderRight: '8px solid #A5C15F',
     borderBottomRightRadius: '12px',
   },
-});
+}));
 
-// Main Component
-const CornerFrame = () => {
+// Modified Main Component to accept isBlink prop
+const CornerFrame = ({ isBlink = false }) => {
   return (
     <FrameContainer>
-      <Corner data-position="top-left" />
-      <Corner data-position="top-right" />
-      <Corner data-position="bottom-left" />
-      <Corner data-position="bottom-right" />
+      <Corner data-position="top-left" id="top-left" isBlink={isBlink}/>
+      <Corner data-position="top-right" id="top-right" isBlink={isBlink}/>
+      <Corner data-position="bottom-left" id="bottom-left" isBlink={isBlink}/>
+      <Corner data-position="bottom-right" id="bottom-right" isBlink={isBlink}/>
     </FrameContainer>
   );
 };
