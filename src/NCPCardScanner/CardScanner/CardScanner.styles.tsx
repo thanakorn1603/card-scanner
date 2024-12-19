@@ -218,7 +218,7 @@ export const ThaiIdDetectorStyled = styled(Box)({
   },
 });
 
-export const StyledButton = styled(Button)(({ theme }) => ({
+export const ButtonStyled = styled(Button)(({ theme }) => ({
   borderRadius: 25,
   padding: "14px",
   textTransform: "none",
