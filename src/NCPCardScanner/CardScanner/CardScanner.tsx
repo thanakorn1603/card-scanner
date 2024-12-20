@@ -1,19 +1,15 @@
-import SecurityIcon from "@mui/icons-material/Security";
 import {
-  Box,
   Container,
   createTheme,
   CssBaseline,
   ThemeProvider,
-  Typography,
   useMediaQuery
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import CardScannerAllowCamera from "../CardScannerAllowCamera/CardScannerAllowCamera";
 import CardScannerLoader from "../CardScannerLoader/CardScannerLoader";
-import FrameCardScanner from "../FrameCardScanner/FrameCardScanner";
+import CardScannerMobile from "../CardScannerMobile/CardScannerMobile";
 import { Area } from "./CardScanner.interface";
-import { ButtonStyled } from "./CardScanner.styles";
 
 // Custom theme with mobile-first considerations
 const theme = createTheme({
@@ -529,186 +525,22 @@ const CardScanner: React.FC = () => {
           <CardScannerLoader />
         ) : !isAllowCamera ? (
           <CardScannerAllowCamera />
+        ) : isMobile ? (
+          <CardScannerMobile
+            isMobile={isMobile}
+            resultImage={resultImage}
+            canvasRef={canvasRef}
+            videoRef={videoRef}
+            setIsStreaming={setIsStreaming}
+            isScanning={isScanning}
+            handleClearImage={handleClearImage}
+          />
         ) : (
           <>
-            {/* Video Area */}
-            <Box
-              sx={{
-                position: "absolute",
-                width: "-webkit-fill-available",
-                height: "-webkit-fill-available",
-                zIndex: 1,
-                top: 0,
-                left: 0,
-              }}
-            >
-              {!resultImage && (
-                <>
-                  <div style={{ position: "absolute" }}>
-                    <canvas
-                      ref={canvasRef}
-                      width={window.innerWidth}
-                      height={
-                        (window.innerWidth *
-                          (videoRef.current?.videoHeight || 0)) /
-                        (videoRef.current?.videoWidth || 0)
-                      }
-                    />
-                  </div>
-                </>
-              )}
-
-              <video
-                ref={videoRef}
-                className="none"
-                autoPlay
-                playsInline
-                onPlay={() => setIsStreaming(true)}
-                style={{
-                  display: !resultImage ? "block" : "none",
-                  height: "-webkit-fill-available",
-                  width: "100%",
-                }}
-              />
-            </Box>
-
-            {!resultImage && <FrameCardScanner isBlink={isScanning} />}
-
-            {/* Overlay Area */}
-            <Box
-              sx={{
-                minHeight: window.innerHeight,
-                width: "-webkit-fill-available",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                px: isMobile ? 2 : 3,
-                zIndex: 2,
-                paddingLeft: "20px",
-                paddingRight: "20px",
-              }}
-            >
-              <Box
-                sx={{
-                  py: isMobile ? 3 : 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  height: window.innerHeight,
-                  justifyContent: "space-between",
-                  // paddingBottom: isMobile ? "100px" : 0,
-                }}
-              >
-                {/* Header */}
-                <Box>
-                  <Typography
-                    variant="h4"
-                    component="h1"
-                    sx={{
-                      color: resultImage ? "primary.main" : "secondary.light",
-                      fontWeight: "bold",
-                      mb: isMobile ? 2 : 3,
-                      textAlign: "center",
-                    }}
-                  >
-                    แสกนบัตร
-                  </Typography>
-
-                  {/* Security Message */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: isMobile ? 2 : 3,
-                    }}
-                  >
-                    <SecurityIcon
-                      color="primary"
-                      sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
-                    />
-                    <Typography
-                      variant="body1"
-                      color={resultImage ? "secondary.dark" : "secondary.light"}
-                    >
-                      รูปภาพบัตรของคุณจะไม่ถูกบันทึก
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Instruction Text */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    marginTop: "60px",
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    color={resultImage ? "secondary.main" : "secondary.light"}
-                    textAlign="center"
-                    sx={{ mb: isMobile ? 2 : 3, px: 2 }}
-                  >
-                    วางบัตรของคุณให้ตรงกับกรอบในรูป แล้วค้างไว้ระยะหนึ่ง
-                  </Typography>
-
-                  {resultImage ? (
-                    <div>
-                      <img
-                        src={resultImage}
-                        style={{
-                          height: `${(window.innerWidth * 0.8 * 2) / 3}px`,
-                          width: "80%",
-                          objectFit: "cover",
-                          // clipPath: "inset(25% 0 45% 0)",
-                        }}
-                        onClick={() => handleClearImage()}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        height: (window.innerWidth * 0.8 * 2) / 3,
-                        width: "80%",
-                      }}
-                    ></div>
-                  )}
-
-                  {/* Scan Instructions */}
-                  <Typography
-                    variant="body2"
-                    color={resultImage ? "secondary.main" : "secondary.light"}
-                    sx={{ mb: isMobile ? 3 : 4, textAlign: "center" }}
-                  >
-                    กดที่รูปหากต้องการสแกนใหม่
-                  </Typography>
-                </Box>
-
-                {/* Button Container - Fixed at bottom for mobile */}
-                <Box
-                  sx={{
-                    width: "100%",
-                    px: isMobile ? 0 : 2,
-                  }}
-                >
-                  <ButtonStyled variant="outlined" color="primary">
-                    กรอกข้อมูลด้วยตัวเอง
-                  </ButtonStyled>
-
-                  <ButtonStyled
-                    variant="contained"
-                    color="primary"
-                    sx={{ mb: 0 }}
-                  >
-                    ยืนยัน
-                  </ButtonStyled>
-                </Box>
-              </Box>
-            </Box>
+            Scanner Desktop
           </>
-        )}
+        )
+        }
       </Container>
     </ThemeProvider>
   );
