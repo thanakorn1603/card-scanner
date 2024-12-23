@@ -230,3 +230,36 @@ export const ButtonStyled = styled(Button)(({ theme }) => ({
     fontSize: "0.95rem",
   },
 }));
+
+export const FrameCardInputContainerStyled = styled(Box)(({ theme }) => ({
+  display: "flex",
+  position: "relative",
+  justifyContent: "flex-start",
+  flexDirection: "column",
+  width: "80%",
+  // backgroundColor: "#f3f3f3",
+  [theme.breakpoints.down("md")]: {
+    minHeight: window.innerHeight,
+    width: "-webkit-fill-available",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    px: 2,
+    zIndex: 10,
+    paddingLeft: "20px",
+    paddingRight: "20px",
+    position: "absolute",
+  },
+}));
+
+export const InputButtonContainerStyled = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  gap: "20px",
+  [theme.breakpoints.down("md")]: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: "0px",
+  },
+}));

@@ -6,14 +6,18 @@ import {
   CssBaseline,
   ThemeProvider,
   Typography,
-  useMediaQuery
+  useMediaQuery,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import CardScannerAllowCamera from "../CardScannerAllowCamera/CardScannerAllowCamera";
 import CardScannerLoader from "../CardScannerLoader/CardScannerLoader";
 import FrameCardScanner from "../FrameCardScanner/FrameCardScanner";
 import { Area } from "./CardScanner.interface";
-import { ButtonStyled } from "./CardScanner.styles";
+import {
+  ButtonStyled,
+  FrameCardInputContainerStyled,
+  InputButtonContainerStyled,
+} from "./CardScanner.styles";
 
 // Custom theme with mobile-first considerations
 const theme = createTheme({
@@ -76,8 +80,8 @@ const CardScanner: React.FC = () => {
   const [areas, setAreas] = useState<Area[]>([
     {
       id: 1,
-      x: 30,
-      y: window.screen.height / 2 - (window.screen.width * 0.8 * 2) / 3,
+      x: 50,
+      y: 60,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -85,8 +89,8 @@ const CardScanner: React.FC = () => {
     },
     {
       id: 2,
-      x: window.screen.width - 100,
-      y: window.screen.height / 2 - (window.screen.width * 0.8 * 2) / 3,
+      x: 480,
+      y: 60,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -94,8 +98,8 @@ const CardScanner: React.FC = () => {
     },
     {
       id: 3,
-      x: 30,
-      y: window.screen.height / 2 - 50,
+      x: 50,
+      y: 270,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -103,8 +107,8 @@ const CardScanner: React.FC = () => {
     },
     {
       id: 4,
-      x: window.screen.width - 100,
-      y: window.screen.height / 2 - 50,
+      x: 480,
+      y: 270,
       width: 70,
       height: 70,
       isCornerDetected: false,
@@ -138,8 +142,6 @@ const CardScanner: React.FC = () => {
     });
 
     if (!isLoadCV && !window.cv) {
-
-
       isLoadCV = true;
       if (document.getElementById("opencv-script")) {
         initializeCamera();
@@ -188,14 +190,19 @@ const CardScanner: React.FC = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: { ideal: 2213 },
-          height: { ideal: 1290 },
+          width: { ideal: isMobile ? 2213 : 600 },
+          height: { ideal: isMobile ? 1290 : 400 },
           facingMode: "environment", // Use back camera if available
         },
       });
-      console.log({ videoRef: videoRef.current, cv: window.cv })
+      console.log("initializeCamera", {
+        videoRef: videoRef.current,
+        cv: window.cv,
+      });
       setIsStreaming(true);
-      getSensorCoordinates();
+      if (isMobile) {
+        getSensorCoordinates();
+      }
       if (videoRef.current && window.cv) {
         videoRef.current.srcObject = stream;
       }
@@ -299,6 +306,12 @@ const CardScanner: React.FC = () => {
 
   const analyzeFrame = () => {
     try {
+      // console.log({
+      //   isStreaming: !isStreaming,
+      //   window: !window.cv,
+      //   canvasRef: !canvasRef.current,
+      //   videoRef: !videoRef.current,
+      // });
       if (!isStreaming || !window.cv || !canvasRef.current || !videoRef.current)
         return;
 
@@ -312,6 +325,7 @@ const CardScanner: React.FC = () => {
       //   width: video.videoWidth,
       //   height: video.videoHeight,
       // });
+      // console.log("--drawImage--");
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       // const imageDataUrl = canvas.toDataURL("image/png");
 
@@ -338,7 +352,7 @@ const CardScanner: React.FC = () => {
           const avgBrightness = calculateAverageBrightness(imageData);
           const percentage = (avgBrightness / 255) * 100;
 
-          if (percentage < 15) console.log(`Lighting: ${percentage} %`);
+          // if (percentage < 15) console.log(`Lighting: ${percentage} %`);
 
           let src: any = null;
           let corners: any = null;
@@ -494,19 +508,22 @@ const CardScanner: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isStreaming) {
-      console.log("isStreaming", isStreaming)
-      analyzeFrame();
+    if(isStreaming) {
+      setTimeout(() => {
+        analyzeFrame();
+      }, 1000);
     }
-  }, [isStreaming, sensitivity, minThreshold, maxThreshold]);
+  }, [isStreaming]);
 
   const handleScan = () => {
     setIsScanning(true);
   };
 
   const handleClearImage = (): void => {
+    console.log("handleClearImage");
     setResultImage("");
     setIsStreaming(true);
+    initializeCamera();
   };
 
   return (
@@ -523,6 +540,7 @@ const CardScanner: React.FC = () => {
           backgroundColor: "rgba(255,255,255,1)",
           paddingLeft: 0,
           paddingRight: 0,
+          alignItems: "center",
         }}
       >
         {!isStreaming && !resultImage && isAllowCamera ? (
@@ -532,53 +550,69 @@ const CardScanner: React.FC = () => {
         ) : (
           <>
             {/* Video Area */}
-            <Box
-              sx={{
-                position: "absolute",
-                width: "-webkit-fill-available",
-                height: "-webkit-fill-available",
-                zIndex: 1,
-                top: 0,
-                left: 0,
-              }}
-            >
-              {!resultImage && (
-                <>
-                  <div style={{ position: "absolute" }}>
-                    <canvas
-                      ref={canvasRef}
-                      width={window.innerWidth}
-                      height={
-                        (window.innerWidth *
-                          (videoRef.current?.videoHeight || 0)) /
-                        (videoRef.current?.videoWidth || 0)
-                      }
-                    />
-                  </div>
-                </>
-              )}
-
-              <video
-                ref={videoRef}
-                className="none"
-                autoPlay
-                playsInline
-                onPlay={() => setIsStreaming(true)}
-                style={{
-                  display: !resultImage ? "block" : "none",
+            {isMobile && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  width: "-webkit-fill-available",
                   height: "-webkit-fill-available",
-                  width: "100%",
+                  zIndex: 1,
+                  top: 0,
+                  left: 0,
+                  // display: "none",
                 }}
-              />
-            </Box>
+              >
+                {!resultImage && isMobile && (
+                  <>
+                    <div style={{ position: "absolute" }}>
+                      <canvas
+                        ref={canvasRef}
+                        width={isMobile ? window.innerWidth : "600"}
+                        height={isMobile ? window.innerHeight : "400"}
+                      />
+                    </div>
+                    <video
+                      ref={videoRef}
+                      className="none"
+                      autoPlay
+                      playsInline
+                      onPlay={() => setIsStreaming(true)}
+                      style={{
+                        display: !resultImage ? "block" : "none",
+                        height: isMobile ? "-webkit-fill-available" : "400px",
+                        width: isMobile ? "100%" : "600px",
+                      }}
+                    />
+                  </>
+                )}
 
-            {!resultImage && <FrameCardScanner isBlink={isScanning} />}
+                {/* {isMobile && (
+                <video
+                  ref={videoRef}
+                  className="none"
+                  autoPlay
+                  playsInline
+                  onPlay={() => setIsStreaming(true)}
+                  style={{
+                    display: !resultImage ? "block" : "none",
+                    height: isMobile ? "-webkit-fill-available" : "400px",
+                    width: isMobile ? "100%" : "600px",
+                  }}
+                />
+              )} */}
+              </Box>
+            )}
+
+            {/* {!resultImage && ( */}
+            {!resultImage && isMobile && (
+              <FrameCardScanner isBlink={isScanning} />
+            )}
 
             {/* Overlay Area */}
-            <Box
+            {/* <Box
               sx={{
                 minHeight: window.innerHeight,
-                width: "-webkit-fill-available",
+                width: isMobile ? "-webkit-fill-available" : "80%",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -586,76 +620,103 @@ const CardScanner: React.FC = () => {
                 zIndex: 2,
                 paddingLeft: "20px",
                 paddingRight: "20px",
+                backgroundColor: "gray",
               }}
+            > */}
+            <FrameCardInputContainerStyled
+            // sx={{
+            //   py: isMobile ? 3 : 4,
+            //   display: "flex",
+            //   flexDirection: "column",
+            //   alignItems: "center",
+            //   height: window.innerHeight,
+            //   justifyContent: "space-between",
+            //   backgroundColor: "red",
+            //   width: "80%",
+            // }}
             >
-              <Box
-                sx={{
-                  py: isMobile ? 3 : 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  height: window.innerHeight,
-                  justifyContent: "space-between",
-                  // paddingBottom: isMobile ? "100px" : 0,
-                }}
-              >
-                {/* Header */}
-                <Box>
-                  <Typography
-                    variant="h4"
-                    component="h1"
-                    sx={{
-                      color: resultImage ? "primary.main" : "secondary.light",
-                      fontWeight: "bold",
-                      mb: isMobile ? 2 : 3,
-                      textAlign: "center",
-                    }}
-                  >
-                    แสกนบัตร
-                  </Typography>
+              {/* Header */}
+              <Box>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  color={
+                    isMobile
+                      ? resultImage
+                        ? "secondary.main"
+                        : "secondary.light"
+                      : "secondary.main"
+                  }
+                  sx={{
+                    fontWeight: "bold",
+                    mb: isMobile ? 2 : 3,
+                    textAlign: "center",
+                  }}
+                >
+                  แสกนบัตร
+                </Typography>
 
-                  {/* Security Message */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mb: isMobile ? 2 : 3,
-                    }}
-                  >
-                    <SecurityIcon
-                      color="primary"
-                      sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
-                    />
-                    <Typography
-                      variant="body1"
-                      color={resultImage ? "secondary.dark" : "secondary.light"}
-                    >
-                      รูปภาพบัตรของคุณจะไม่ถูกบันทึก
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Instruction Text */}
+                {/* Security Message */}
                 <Box
                   sx={{
                     display: "flex",
+                    alignItems: "center",
                     justifyContent: "center",
-                    flexDirection: "column",
-                    marginTop: "60px",
+                    gap: 1,
+                    mb: isMobile ? 2 : 3,
                   }}
                 >
+                  <SecurityIcon
+                    color="primary"
+                    sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
+                  />
                   <Typography
                     variant="body1"
-                    color={resultImage ? "secondary.main" : "secondary.light"}
-                    textAlign="center"
-                    sx={{ mb: isMobile ? 2 : 3, px: 2 }}
+                    color={
+                      isMobile
+                        ? resultImage
+                          ? "secondary.main"
+                          : "secondary.light"
+                        : "secondary.main"
+                    }
                   >
-                    วางบัตรของคุณให้ตรงกับกรอบในรูป แล้วค้างไว้ระยะหนึ่ง
+                    รูปภาพบัตรของคุณจะไม่ถูกบันทึก
                   </Typography>
+                </Box>
+              </Box>
 
-                  {resultImage ? (
-                    <div>
+              {/* Instruction Text */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  marginTop: "60px",
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  color={
+                    isMobile
+                      ? resultImage
+                        ? "secondary.main"
+                        : "secondary.light"
+                      : "secondary.main"
+                  }
+                  textAlign="center"
+                  sx={{ mb: isMobile ? 2 : 3, px: 2 }}
+                >
+                  วางบัตรของคุณให้ตรงกับกรอบในรูป แล้วค้างไว้ระยะหนึ่ง
+                </Typography>
+
+                {resultImage ? (
+                  <div>
+                    {!isMobile ? (
+                      <img
+                        src={resultImage}
+                        onClick={() => handleClearImage()}
+                      />
+                    ) : (
                       <img
                         src={resultImage}
                         style={{
@@ -666,47 +727,92 @@ const CardScanner: React.FC = () => {
                         }}
                         onClick={() => handleClearImage()}
                       />
-                    </div>
-                  ) : (
-                    <div
+                    )}
+                  </div>
+                ) : !isMobile ? (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      height: "400px",
+                    }}
+                  >
+                    <video
+                      ref={videoRef}
+                      className="none"
+                      autoPlay
+                      playsInline
+                      onPlay={() => setIsStreaming(true)}
                       style={{
-                        height: (window.innerWidth * 0.8 * 2) / 3,
-                        width: "80%",
+                        display: "block",
+                        height: isMobile ? "-webkit-fill-available" : "400px",
+                        width: isMobile ? "100%" : "600px",
+                        position: "absolute",
+                        zIndex: 0,
                       }}
-                    ></div>
-                  )}
+                    />
 
-                  {/* Scan Instructions */}
-                  <Typography
-                    variant="body2"
-                    color={resultImage ? "secondary.main" : "secondary.light"}
-                    sx={{ mb: isMobile ? 3 : 4, textAlign: "center" }}
-                  >
-                    กดที่รูปหากต้องการสแกนใหม่
-                  </Typography>
-                </Box>
+                    <canvas
+                      ref={canvasRef}
+                      width={isMobile ? window.innerWidth : "600"}
+                      height={
+                        isMobile
+                          ? (window.innerWidth *
+                              (videoRef.current?.videoHeight || 0)) /
+                            (videoRef.current?.videoWidth || 0)
+                          : "400"
+                      }
+                      style={{ position: "absolute", zIndex: 3 }}
+                      className="w-full border border-gray-200 rounded"
+                    />
 
-                {/* Button Container - Fixed at bottom for mobile */}
-                <Box
-                  sx={{
-                    width: "100%",
-                    px: isMobile ? 0 : 2,
-                  }}
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <FrameCardScanner isBlink={isScanning} />
+                    </Box>
+                  </Box>
+                ) : (
+                  <div
+                    style={{
+                      height: (window.innerWidth * 0.8 * 2) / 3,
+                      width: "80%",
+                      display: isMobile ? "block" : "none",
+                    }}
+                  ></div>
+                )}
+
+                {/* Scan Instructions */}
+                <Typography
+                  variant="body2"
+                  color={resultImage ? "secondary.main" : "secondary.light"}
+                  sx={{ mb: isMobile ? 3 : 4, textAlign: "center" }}
                 >
-                  <ButtonStyled variant="outlined" color="primary">
-                    กรอกข้อมูลด้วยตัวเอง
-                  </ButtonStyled>
-
-                  <ButtonStyled
-                    variant="contained"
-                    color="primary"
-                    sx={{ mb: 0 }}
-                  >
-                    ยืนยัน
-                  </ButtonStyled>
-                </Box>
+                  กดที่รูปหากต้องการสแกนใหม่
+                </Typography>
               </Box>
-            </Box>
+
+              {/* Button Container - Fixed at bottom for mobile */}
+              <InputButtonContainerStyled>
+                <ButtonStyled variant="outlined" color="primary">
+                  กรอกข้อมูลด้วยตัวเอง
+                </ButtonStyled>
+
+                <ButtonStyled
+                  variant="contained"
+                  color="primary"
+                  sx={{ mb: 0 }}
+                >
+                  ยืนยัน
+                </ButtonStyled>
+              </InputButtonContainerStyled>
+            </FrameCardInputContainerStyled>
+            {/* </Box> */}
           </>
         )}
       </Container>

@@ -18,7 +18,6 @@ const FrameCardScanner: React.FC<Props> = ({ isBlink = false }) => {
           <CornerStyled data-position="bottom-right" id="bottom-right" isBlink={isBlink} />
         </FrameInContainerStyled>
       </FrameContainerStyled>
-
     </FrameCardScannerStyled>
   );
 };
